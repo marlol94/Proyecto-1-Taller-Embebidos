@@ -39,10 +39,9 @@ cont=1
 y = str(cont)+'.avi'
 video = cv2.VideoCapture(0)
 
-salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),70.0,(640,480))
-b= salida
+salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),100.0,(640,480))
 i = 0
-s = 2000
+s = 4000
 
 while True:
   ret, frame = video.read()
@@ -61,28 +60,28 @@ while True:
     
     for c in cnts:
       area = cv2.contourArea(c)
-      if area > 9000 and s == 2000:
+      if area > 9000 and s == 4000:
         x,y,w,h = cv2.boundingRect(c)
         cv2.rectangle(frame, (x,y), (x+w,y+h),(0,255,0),2)
         s = s-1
-        b.write(frame)
         mensaje ()
         
-      if s!=0 and s <2000:
+      if s!=0 and s <4000:
         if area > 9000:
           x,y,w,h = cv2.boundingRect(c)
           cv2.rectangle(frame, (x,y), (x+w,y+h),(0,255,0),2)
+        b = salida  
         b.write(frame)
+        
         if s>0:
           s=s-1
           if s==0:
             b.release()
-            s=2000
             cont=cont+1
             y = str(cont)+'.avi'
-            salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),45.0,(640,480))
+            salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),100.0,(640,480))
             b = salida
-
+            s=4000
         
           
        
