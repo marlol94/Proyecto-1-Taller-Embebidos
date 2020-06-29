@@ -1,1 +1,2 @@
-Esta carpeta se centra en Python y opencv para la deteccion de movimiento
+Se requiere el archivo yolov3.weights ya esta es la base de datos para identificar los objetos dentro de la imagen de la camara 
+https://pjreddie.com/media/files/yolov3.weights
