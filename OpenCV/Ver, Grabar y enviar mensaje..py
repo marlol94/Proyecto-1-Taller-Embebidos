@@ -51,7 +51,7 @@ video = cv2.VideoCapture(0)
 ret = video.set(3,320)
 ret = video.set(4,240)
 
-salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),65.0,(320,240))
+salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),15.0,(320,240))
 k = 0
 s = 200
 
@@ -133,7 +133,7 @@ while True:
             b.release()
             cont=cont+1
             y = str(cont)+'.avi'
-            salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),65.0,(640,480))
+            salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),15.0,(320,240))
             b = salida
             s=200
         
