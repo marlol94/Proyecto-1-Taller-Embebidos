@@ -7,6 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 import time
+import os
 
 # Load Yolo
 net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
@@ -23,16 +24,16 @@ def mensaje ():
   
   sender_email_address = 'vigilanciapymensajes@gmail.com'
   sender_email_password = '@Mrtnz1970'
-  receiver_email_address = 'vigilanciapymensajes@gmail.com'
+  receiver_email_address = 'marlonnar@gmail.com'
 
-  email_subject_line = 'Se le metieron Pa'
+  email_subject_line = 'Se detecto movimiento en su casa'
 
   msg = MIMEMultipart()
   msg['From'] = sender_email_address
   msg['To'] = receiver_email_address
   msg['Subject'] = email_subject_line
 
-  email_body = 'Se le metieron al chante rasta \n'+'Fecha y Hora:' + c
+  email_body = 'Se detecto movimiento en su vivienda consulte el video para mas informacion \n'+'Fecha y Hora:' + c
   msg.attach(MIMEText(email_body, 'plain'))
 
   email_content = msg.as_string()
@@ -43,7 +44,11 @@ def mensaje ():
   server.sendmail(sender_email_address, receiver_email_address, email_content)
   server.quit()
 
-
+def archivo ():
+    s = time.strftime("%c")
+    file = open("Control de detecciones.txt", "w")
+    file.write("Se detecto movimiento \n"+"Fecha y Hora"+s )
+    file.close()
 
 cont=1
 y = str(cont)+'.avi'
