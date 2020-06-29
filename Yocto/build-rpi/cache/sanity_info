@@ -1,0 +1,4 @@
+SANITY_VERSION 1
+TMPDIR /home/eve/Documentos/Yocto/poky-warrior/tmp
+SSTATE_DIR /home/eve/Documentos/Yocto/poky-warrior/sstate-cache
+NATIVELSBSTRING ubuntu-18.04
