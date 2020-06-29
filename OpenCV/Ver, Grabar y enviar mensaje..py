@@ -8,6 +8,16 @@ from email.mime.base import MIMEBase
 from email import encoders
 import time
 
+# Load Yolo
+net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
+classes = []
+with open("coco.names", "r") as f:
+    classes = [line.strip() for line in f.readlines()]
+layer_names = net.getLayerNames()
+output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+colors = np.random.uniform(0, 255, size=(len(classes), 3))
+
+
 def mensaje ():
   c = time.strftime("%c")
   
@@ -38,19 +48,23 @@ def mensaje ():
 cont=1
 y = str(cont)+'.avi'
 video = cv2.VideoCapture(0)
+ret = video.set(3,320)
+ret = video.set(4,240)
 
-salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),100.0,(640,480))
-i = 0
-s = 4000
+salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),65.0,(320,240))
+k = 0
+s = 200
 
 while True:
   ret, frame = video.read()
+
+  
   if ret == False: break
   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
   gray = cv2.GaussianBlur(gray, (21, 21), 0)
-  if i == 20:
+  if k == 20:
     bgGray = gray
-  if i > 20:
+  if k > 20:
     dif = cv2.absdiff(gray, bgGray)
     dif = cv2.dilate(dif, None, iterations=2)
     _, th = cv2.threshold(dif, 40, 255, cv2.THRESH_BINARY)
@@ -60,33 +74,73 @@ while True:
     
     for c in cnts:
       area = cv2.contourArea(c)
-      if area > 9000 and s == 4000:
+      if area > 9000 and s == 200:
         x,y,w,h = cv2.boundingRect(c)
         cv2.rectangle(frame, (x,y), (x+w,y+h),(0,255,0),2)
         s = s-1
-        mensaje ()
+   ##     mensaje ()
         
-      if s!=0 and s <4000:
-        if area > 9000:
-          x,y,w,h = cv2.boundingRect(c)
-          cv2.rectangle(frame, (x,y), (x+w,y+h),(0,255,0),2)
-        b = salida  
+      if s!=0 and s <200:
+                  
+        b = salida
+
+        ret, frame = video.read()
+        
+        height, width, channels = frame.shape
+        
+        ##deteccion de objetos
+        blob = cv2.dnn.blobFromImage(frame, 0.00392, (320, 320), (0, 0, 0), True, crop=False)
+        net.setInput(blob)
+        outs = net.forward(output_layers)
+        ##informacion q  aparece en pantalla
+        class_ids = []
+        confidences = []
+        boxes = []
+        for out in outs:
+            for detection in out:
+                scores = detection[5:]
+                class_id = np.argmax(scores)
+                confidence = scores[class_id]
+                if confidence > 0.5:
+                    # Objecto detectedo
+                    center_x = int(detection[0] * width)
+                    center_y = int(detection[1] * height)
+                    w = int(detection[2] * width)
+                    h = int(detection[3] * height)
+                    # Rectangle coordinates
+                    x = int(center_x - w / 2)
+                    y = int(center_y - h / 2)
+                    boxes.append([x, y, w, h])
+                    confidences.append(float(confidence))
+                    class_ids.append(class_id)
+
+        indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+        font = cv2.FONT_HERSHEY_PLAIN
+        
+        for i in range(len(boxes)):
+            if i in indexes:
+                x, y, w, h = boxes[i]
+                label = str(classes[class_ids[i]])
+                color = colors[class_ids[i]]
+                cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+                cv2.putText(frame, label, (x, y + 30), font, 2, color, 2)
+
         b.write(frame)
-        
+     
         if s>0:
-          s=s-1
+          s=s-1         
           if s==0:
             b.release()
             cont=cont+1
             y = str(cont)+'.avi'
-            salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),100.0,(640,480))
+            salida = cv2.VideoWriter(y,cv2.VideoWriter_fourcc(*'XVID'),65.0,(640,480))
             b = salida
-            s=4000
+            s=200
         
           
        
   cv2.imshow('Frame',frame)
-  i = i+1
+  k = k+1
   if cv2.waitKey(30) & 0xFF == ord ('q'):
     break
 video.release()
